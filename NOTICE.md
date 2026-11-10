@@ -13,10 +13,3 @@ components. Their licenses are included in:
 - `firmware/Drivers/CMSIS/Device/ST/STM32G4xx/LICENSE.txt`
 
 Those components remain under their respective licenses.
-
-## STM32G4 Nucleo-64 user manual
-
-`docs/um2505-stm32g4-nucleo64-boards-mb1367-stmicroelectronics.pdf` is
-UM2505 Rev 7, published by STMicroelectronics. It is included as hardware
-reference material and remains the copyright of STMicroelectronics. It is not
-licensed under this repository's MIT License.

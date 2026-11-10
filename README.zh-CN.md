@@ -1,5 +1,7 @@
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+[![Firmware build](https://github.com/Lissa7zz/stm32g474-ili9341/actions/workflows/build.yml/badge.svg)](https://github.com/Lissa7zz/stm32g474-ili9341/actions/workflows/build.yml)
+
 # STM32G474 NUCLEO + ILI9341
 
 使用 NUCLEO-G474RE 通过 SPI1 驱动 8 针 ILI9341 屏幕的 STM32CubeIDE 示例工程。
@@ -11,6 +13,7 @@
 ## 硬件
 
 - NUCLEO-G474RE，MCU 为 STM32G474RET6
+- `ZJY240S0800TG02-ILI9341` 2.4 英寸、240×320、SPI 显示模块
 - ILI9341 SPI 屏幕，常见 8 针接口：`GND / VCC / SCL / SDA / RES / DC / CS / BLK`
 - ST-LINK USB 线和杜邦线
 
@@ -32,7 +35,13 @@
 - 屏幕模块明确支持 5 V 时，VCC 才可以接 5 V；SPI 和 GPIO 始终使用 3.3 V 电平。
 - 如果 BLK 直接驱动背光 LED，不能把 GPIO 当电源使用。应串限流电阻，或通过三极管/MOS 管控制。
 - PA5 默认还连接板载用户 LED LD2。如果高速 SPI 波形不稳定，可以评估断开 SB6。
-- 当前固件只在 `LCD_ConfigureControlPins()` 中将 PB10 配为普通 GPIO。CubeMX 文件中 PB10 标为 TIM2_CH3，但还没有使用 PWM 调光。
+- PB10 当前配置为普通 GPIO 输出，用于开关背光，还没有使用 PWM 调光。
+
+### 硬件照片
+
+| 正面 | 背面 |
+|---|---|
+| [![ILI9341 正面](docs/images/ili9341-front.jpg)](docs/images/ili9341-front.jpg) | [![ILI9341 背面](docs/images/ili9341-back.jpg)](docs/images/ili9341-back.jpg) |
 
 ## CubeMX 配置
 
@@ -52,6 +61,7 @@ MCU：`STM32G474RETx`，开发板：`NUCLEO-G474RE`。
 | PA8 | LCD_RST，Output Push Pull |
 | PA9 | LCD_DC，Output Push Pull |
 | PB6 | LCD_CS，Output Push Pull |
+| PB10 | LCD_BL，Output Push Pull，初始高电平 |
 
 工程文件：[firmware/ILI9341.ioc](firmware/ILI9341.ioc)。
 
@@ -64,15 +74,28 @@ MCU：`STM32G474RETx`，开发板：`NUCLEO-G474RE`。
 
 `Debug` 等本地编译产物没有提交到仓库，首次导入后重新编译即可。
 
+### CMake 构建
+
+```bash
+cmake -S . -B build -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+构建后生成 `build/stm32g474_ili9341.elf` 和 `.bin`。
+
 ## 代码入口
 
-- `firmware/Core/Src/main.c`：ILI9341 初始化、绘制和主循环
+- `firmware/Core/Src/main.c`：程序入口和演示图片显示
+- `firmware/Core/Src/ili9341.c`：可复用的 ILI9341 驱动
+- `firmware/Core/Inc/ili9341.h`：显示驱动公开接口
 - `firmware/Core/Src/spi.c`：SPI1 配置
 - `firmware/Core/Src/gpio.c`：CubeMX GPIO 初始化
 - `firmware/Core/Inc/ili9341_image.h`：演示图片尺寸和数组声明
 - `firmware/Core/Src/ili9341_image.c`：320 x 240 RGB565 演示图片
 
-当前 `LCD_DrawImage()` 只接受 `ILI9341_IMAGE_DATA_SIZE` 大小的横屏图片，即 `153600` 字节。
+`ILI9341_DrawRGB565Image()` 接收图片指针、数据字节数、宽度和高度。数据长度必须等于 `width * height * 2`。
 
 ## 替换演示图片
 

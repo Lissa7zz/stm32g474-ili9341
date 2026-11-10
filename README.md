@@ -1,5 +1,7 @@
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+[![Firmware build](https://github.com/Lissa7zz/stm32g474-ili9341/actions/workflows/build.yml/badge.svg)](https://github.com/Lissa7zz/stm32g474-ili9341/actions/workflows/build.yml)
+
 # STM32G474 NUCLEO + ILI9341
 
 An STM32CubeIDE example that drives an 8-pin ILI9341 display from a
@@ -14,6 +16,7 @@ demo image at startup. Images and headers can be prepared with
 ## Hardware
 
 - NUCLEO-G474RE with an STM32G474RET6 MCU
+- `ZJY240S0800TG02-ILI9341` 2.4-inch, 240 x 320 SPI display module
 - ILI9341 SPI display with the common 8-pin interface:
   `GND / VCC / SCL / SDA / RES / DC / CS / BLK`
 - ST-LINK USB cable and jumper wires
@@ -39,9 +42,14 @@ Notes:
   path. Use a series resistor or a transistor/MOSFET driver.
 - PA5 is also connected to onboard user LED LD2 by default. Consider removing
   SB6 if the SPI clock is unstable at higher speeds.
-- The current firmware configures PB10 as a normal GPIO inside
-  `LCD_ConfigureControlPins()`. The CubeMX file marks PB10 as TIM2_CH3, but PWM
-  dimming is not implemented yet.
+- PB10 is configured as a GPIO output for the current on/off backlight control.
+  PWM dimming is not implemented yet.
+
+### Hardware photos
+
+| Front | Back |
+|---|---|
+| [![ILI9341 front](docs/images/ili9341-front.jpg)](docs/images/ili9341-front.jpg) | [![ILI9341 back](docs/images/ili9341-back.jpg)](docs/images/ili9341-back.jpg) |
 
 ## CubeMX configuration
 
@@ -61,6 +69,7 @@ MCU: `STM32G474RETx`. Board: `NUCLEO-G474RE`.
 | PA8 | LCD_RST, output push-pull |
 | PA9 | LCD_DC, output push-pull |
 | PB6 | LCD_CS, output push-pull |
+| PB10 | LCD_BL, output push-pull, initially high |
 
 CubeMX project: [firmware/ILI9341.ioc](firmware/ILI9341.ioc).
 
@@ -75,16 +84,29 @@ CubeMX project: [firmware/ILI9341.ioc](firmware/ILI9341.ioc).
 Local build artifacts such as `Debug` are not committed. Rebuild after the
 first import.
 
+### CMake build
+
+```bash
+cmake -S . -B build -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+This produces `build/stm32g474_ili9341.elf` and `.bin`.
+
 ## Code layout
 
-- `firmware/Core/Src/main.c`: ILI9341 initialization, drawing, and main loop
+- `firmware/Core/Src/main.c`: application entry and demo image display
+- `firmware/Core/Src/ili9341.c`: reusable ILI9341 driver
+- `firmware/Core/Inc/ili9341.h`: public display driver API
 - `firmware/Core/Src/spi.c`: SPI1 configuration
 - `firmware/Core/Src/gpio.c`: CubeMX GPIO initialization
 - `firmware/Core/Inc/ili9341_image.h`: demo image size and array declaration
 - `firmware/Core/Src/ili9341_image.c`: 320 x 240 RGB565 demo image
 
-`LCD_DrawImage()` currently accepts only a landscape image matching
-`ILI9341_IMAGE_DATA_SIZE`, which is `153600` bytes.
+`ILI9341_DrawRGB565Image()` accepts the image pointer, byte length, width, and
+height. The byte length must equal `width * height * 2`.
 
 ## Replacing the demo image
 

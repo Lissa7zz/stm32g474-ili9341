@@ -2,6 +2,10 @@
 firmware/Debug/
 firmware/Release/
 firmware/.metadata/
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
 *.launch
 
 # Local editor and OS files

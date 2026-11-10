@@ -1,0 +1,39 @@
+name: Firmware build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes cmake ninja-build gcc-arm-none-eabi libnewlib-arm-none-eabi
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja
+          -DCMAKE_TOOLCHAIN_FILE=cmake/arm-none-eabi.cmake
+          -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build
+      - name: Show image size
+        run: arm-none-eabi-size build/stm32g474_ili9341.elf
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: stm32g474-ili9341-firmware
+          path: |
+            build/stm32g474_ili9341.elf
+            build/stm32g474_ili9341.bin
+          if-no-files-found: error

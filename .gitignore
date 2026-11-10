@@ -1,0 +1,12 @@
+# STM32CubeIDE generated build output
+firmware/Debug/
+firmware/Release/
+firmware/.metadata/
+*.launch
+
+# Local editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

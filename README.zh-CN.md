@@ -96,6 +96,20 @@ python tools/generate_demo_header.py
 
 - [Pixel2Panel 图片转换工具](https://github.com/Lissa7zz/ili9341-image-studio)
 
-## License
+## 开发者
 
-项目原创代码、文档和演示图片使用 [MIT License](LICENSE)。STM32 HAL 和 CMSIS 组件适用各自的许可，详见 [NOTICE.md](NOTICE.md)。
+- 开发者：Lissa7zz
+- AI 协作：OpenAI Codex
+- 联系：[millergordon72@gmail.com](mailto:millergordon72@gmail.com)
+
+## 开源协议
+
+Copyright (C) 2026 Lissa7zz
+
+项目原创代码、文档和演示图片采用 [MIT License](LICENSE) 发布。你可以依据该协议复制、修改和分发这些内容。
+
+本项目按“现状”提供，不附带任何明示或默示担保。STM32 HAL 和 CMSIS 组件适用各自的许可，详见 [NOTICE.md](NOTICE.md)。
+
+---
+
+<p align="center"><em>كأن قلبي لم يعد ينبض؛ والريح الباردة تطلق تنهداتها — سانتاباد.</em></p>
